@@ -5,6 +5,7 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
+    "@terra-money/terra.js": "^3.0.12",
     "node-fetch": "^3.2.4"
   },
   "type": "module"
