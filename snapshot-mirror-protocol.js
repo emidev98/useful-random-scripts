@@ -10,6 +10,10 @@ const main = () => {
         URL: "http://localhost:1317/", // or https://lcd.terra.dev
         chainID: "columbus-5",
     });
+    const BLACKLISTED_ADDRESSES = [
+        "terra1cxfff975xdjm74uwr8u3mc8jnnxkqwcww4zcpn",
+        "terra1xvmdjsdp58sanlzvnx6g79nyf2zk7cr5l78mxs"
+    ];
     const DEPOSITS = [];
 
     const init = async () => {
@@ -54,21 +58,26 @@ const main = () => {
         const AUST_ADDRESS = 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu';
 
         response.positions.forEach(res => {
-            const { owner, collateral } = res;
-            if (collateral.info.native_token) {
-                DEPOSITS.push({
-                    denom: collateral.info.native_token.denom,
-                    amount: collateral.amount,
-                    owner: owner
-                });
+            const { owner, collateral, idx, is_short } = res;
+            if(is_short) {
+                console.log(idx, collateral);
             }
-            else if (collateral.info?.token?.contract_addr === AUST_ADDRESS) {
-                DEPOSITS.push({
-                    denom: "uusd",
-                    amount: (Number(collateral.amount) * AUST_EXCHANGE_RATIO).toFixed(),
-                    owner: owner
-                });
-            }
+            if(!BLACKLISTED_ADDRESSES.includes(owner)) {
+                if (collateral.info.native_token) {
+                    DEPOSITS.push({
+                        denom: collateral.info.native_token.denom,
+                        amount: collateral.amount,
+                        owner: owner
+                    });
+                }
+                else if (collateral.info?.token?.contract_addr === AUST_ADDRESS) {
+                    DEPOSITS.push({
+                        denom: "uusd",
+                        amount: (Number(collateral.amount) * AUST_EXCHANGE_RATIO).toFixed(),
+                        owner: owner
+                    });
+                }
+            } 
         })
     }
 
